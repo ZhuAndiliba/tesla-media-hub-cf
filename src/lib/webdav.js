@@ -62,7 +62,8 @@ function parsePropfind(xml, cfg) {
     const hrefMatch = block.match(/<(\w*:)?href>([\s\S]*?)<\/(\w*:)?href>/i);
     if (!hrefMatch) continue;
     const href = decodeURIComponent(hrefMatch[2].trim());
-    const isDir = /<(\w*:)?collection\s*\/?>/i.test(block);
+    // 目录判定：只认标签名，兼容 <D:collection/> 与 <D:collection xmlns:D="DAV:"/>（Alist 带属性写法）
+    const isDir = /<(\w*:)?collection[\s/>]/i.test(block);
     // WebDAV 返回的 href 多为「服务器绝对路径」（如 /dav/movies/），需基于 origin 拼接，避免与 base 路径重复
     const fullUrl = href.startsWith('http') ? href : origin + (href.startsWith('/') ? href : '/' + href);
     const rel = toRelPath(fullUrl, basePathname);
